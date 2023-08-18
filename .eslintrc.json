@@ -12,7 +12,12 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
   },
   "plugins": ["@typescript-eslint", "import", "prettier", "react"],
   "rules": {
