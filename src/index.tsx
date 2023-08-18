@@ -8,5 +8,3 @@ const root = createRoot(container as Element);
 root.render(
   <App />
 )
-
-

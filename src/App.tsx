@@ -8,3 +8,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+const a = 2
