@@ -1,12 +1,7 @@
 import React from "react";
 
-
-const App: React.FC = () => {
-  return (
-    <div>Welcome to Tourista</div>
-  )
+const App: React.FunctionComponent = (): React.ReactElement => {
+  return <div>Welcome to Tourista</div>;
 };
 
 export default App;
-
-const a = 2
