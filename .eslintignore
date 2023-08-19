@@ -1,0 +1,8 @@
+# list of directories and files to ignore when linting
+
+# configs and build
+build
+configs
+
+# ignore node_moduels
+node_modules
