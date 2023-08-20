@@ -56,4 +56,4 @@ module.exports = {
   appProviders: resolveApp("src/providers"),
   moduleFileExtensions,
   publicUrlOrPath,
-}
+};
