@@ -14,7 +14,7 @@ const publicUrlOrPath = getPublicUrlOrPath(
   process.env.PUBLIC_URL
 );
 
-const moduleExtensions = [
+const moduleFileExtensions = [
   "mjs",
   "web.mjs",
   "js",
@@ -29,7 +29,7 @@ const moduleExtensions = [
 ];
 
 const resolveModule = (resolveFn, filePath) => {
-  const extension = moduleExtensions.find(extension => fs.existsSync(resolveFn(`${filePath}.${extension}`)));
+  const extension = moduleFileExtensions.find(extension => fs.existsSync(resolveFn(`${filePath}.${extension}`)));
 
   if (extension) {
     return resolveFn(`${filePath}.${extension}`);
@@ -45,5 +45,15 @@ module.exports = {
   appPublic: resolveApp("public"),
   appHtml: resolveApp("public/index.html"),
   appIndexJs: resolveApp("src/index"),
-  appPackageJson: resolveApp("package.json")
+  appPackageJson: resolveApp("package.json"),
+  appSrc: resolveApp("src"),
+  appTsConfig: resolveApp("tsconfg.json"),
+  appJsConfig: resolveApp("jsconfig.json"),
+  yarnLockFile: resolveApp("yarn.lock"),
+  appNodeModules: resolveApp("node_modules"),
+  appNodeModulesCache: resolveApp("node_modules/cache"),
+  appMutations: resolveApp("src/mutations"),
+  appProviders: resolveApp("src/providers"),
+  moduleFileExtensions,
+  publicUrlOrPath,
 }
