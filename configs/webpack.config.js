@@ -9,8 +9,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
+const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || "10000");
+
 const cssRegex = /\.css$/;
 const sassRegex = /\.(scss|sass)$/;
+const nodeModulesRegex = /node_modules/;
 
 module.exports = ((env) => {
   const isProduction = env === "production";
@@ -115,6 +118,95 @@ module.exports = ((env) => {
           }
         }),
         new CssMinimizerPlugin(),
+      ],
+    },
+    module: {
+      strictExportPresence: true,
+      rules: [
+        {
+          test: /\.m?js/,
+          resolve: {
+            fullySpecified: false,
+          }
+        },
+        {
+          test: /\.(js|mjs|jsx|ts|tsx)$/,
+          include: paths.appSrc,
+          exclude: nodeModulesRegex,
+          loader: require.resolve("babel-loader"),
+          options: {
+            babelrc: false,
+            presets: [require.resolve("@babel/preset-env"), require.resolve("@babel/preset-react")],
+            plugins: [
+              require.resolve("@babel/plugin-transform-runtime"),
+              [
+                "relay", 
+                { 
+                  artifactDirectory: "./src/__generated__", 
+                },
+              ],
+            ].filter(Boolean),
+            // Cache related options
+            cacheDirectory: true,
+            cacheCompression: false,
+            compact: isProduction,
+          },
+        },
+        {
+          test: cssRegex,
+          exclude: nodeModulesRegex,
+          use: getStyleLoaders({
+            importLoaders: 1,
+            sourceMap: isDevelopment,
+            modules: {
+              mode: "icss",
+            },
+          }),
+          sideEffects: true,
+        },
+        {
+          test: sassRegex,
+          exclude: nodeModulesRegex,
+          use: getStyleLoaders(
+            {
+              importLoaders: 3,
+              sourceMap: isDevelopment,
+            },
+            "sass-loader",
+          ),
+        },
+        {
+          test: /\.(bmp|gif|jpe?g|png)$/,
+          type: "asset",
+          parser: {
+            dataUrlCondition: {
+              maxSize: imageInlineSizeLimit,
+            },
+          },
+        },
+        {
+          test: /\.svg$/,
+          use: [
+            {
+              loader: require.resolve("@svgr/webpack"),
+              options: {
+                prettier: false,
+                svgo: false,
+                svgoConfig: {
+                  plugions: [{ removeViewBox: false }],
+                },
+                titleProp: true,
+                ref: true,
+              },
+            },
+            {
+              loader: require.resolve("file-loader"),
+              options: {
+                name: "static/media/[name].[hash].[ext]",
+              },
+            },
+          ],
+        },
       ],
     },
   };
