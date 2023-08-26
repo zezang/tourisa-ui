@@ -209,6 +209,33 @@ module.exports = ((env) => {
         },
       ],
     },
+    plugins: [
+      new HtmlWebpackPlugin(
+        Object.assign(
+          {},
+          {
+            inject: true,
+            template: paths.appHtml,
+          },
+          isProduction ? {
+            minify: {
+              removeComments: true,
+              collapseWhitespace: true,
+              removeRedundantAttributes: true,
+              useshortDoctype: true,
+              removeEmptyAttributes: true,
+              keepClosingSlash: true,
+              minifyJS: true,
+              minifyCSS: true,
+              minifyURLS: true,
+            },
+          }
+          : undefined,
+        ),
+      ),
+
+      new CspHtmlWebpackPlugin(),
+    ],
   };
 });
 
