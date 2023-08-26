@@ -3,7 +3,9 @@
 const fs = require("fs");
 const path = require("path");
 const paths = require("./paths");
+const webpack = require("webpack");
 
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -252,7 +254,11 @@ module.exports = ((env) => {
           },
         },
       ),
-    ],
+      new BundleAnalyzerPlugin({
+        analyzerMode: shouldRunBundleAnalyzer ? "static" : "disabled",
+      }),
+
+    ].filter(Boolean),
   };
 });
 
