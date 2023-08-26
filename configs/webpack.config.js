@@ -5,9 +5,13 @@ const path = require("path");
 const paths = require("./paths");
 
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const {
+  getCSPScriptSrc
+} = require("./csp/index");
 
 const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || "10000");
 
@@ -233,8 +237,21 @@ module.exports = ((env) => {
           : undefined,
         ),
       ),
-
-      new CspHtmlWebpackPlugin(),
+      // Content Security Policy configs
+      new CspHtmlWebpackPlugin(
+        {
+          "default-src": "self",
+          "script-src": getCSPScriptSrc(),
+        },
+        {
+          hashEnabled: {
+            "style-src": false,
+          },
+          nonceEnabled: {
+            "style-src": false,
+          },
+        },
+      ),
     ],
   };
 });
