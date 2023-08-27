@@ -39,8 +39,8 @@ const resolveModule = (resolveFn, filePath) => {
 };
 
 module.exports = {
-  dotenv: resolveApp(".env"),
   root: resolveApp("."),
+  dotenv: resolveApp(".env"),
   appBuild: resolveApp("build"),
   appPublic: resolveApp("public"),
   appHtml: resolveApp("public/index.html"),
@@ -49,11 +49,12 @@ module.exports = {
   appSrc: resolveApp("src"),
   appTsConfig: resolveApp("tsconfg.json"),
   appJsConfig: resolveApp("jsconfig.json"),
-  yarnLockFile: resolveApp("yarn.lock"),
   appNodeModules: resolveApp("node_modules"),
   appNodeModulesCache: resolveApp("node_modules/cache"),
   appMutations: resolveApp("src/mutations"),
   appProviders: resolveApp("src/providers"),
+  appTsBuildInfoFile: resolveApp("node_modules/.cache/tsconfig.tsbuildinfo"),
+  yarnLockFile: resolveApp("yarn.lock"),
   moduleFileExtensions,
   publicUrlOrPath,
 };

@@ -2,19 +2,22 @@
 
 const fs = require("fs");
 const path = require("path");
-const paths = require("./paths");
+const resolve = require("resolve");
 const webpack = require("webpack");
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const {
-  getCSPScriptSrc
-} = require("./csp/index");
 
+const getClientEnvironment = require("./env");
+const { getCSPScriptSrc } = require("./csp/index");
+const paths = require("./paths");
+
+const useTypeScript = fs.existsSync(paths.appTsConfig);
 const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || "10000");
 
 const cssRegex = /\.css$/;
@@ -25,6 +28,8 @@ module.exports = ((env) => {
   const isProduction = env === "production";
   const isDevelopment = env !== "production";
   const shouldRunBundleAnalyzer = process.argv.includes("--analyzer");
+
+  const envKeys = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 
   const getStyleLoaders = (cssOptions, preProcessor) => {
     const loaders = [
@@ -239,6 +244,7 @@ module.exports = ((env) => {
           : undefined,
         ),
       ),
+
       // Content Security Policy configs
       new CspHtmlWebpackPlugin(
         {
@@ -254,13 +260,57 @@ module.exports = ((env) => {
           },
         },
       ),
+
       new BundleAnalyzerPlugin({
         analyzerMode: shouldRunBundleAnalyzer ? "static" : "disabled",
       }),
+      // Makes environment variables available to JS code
+      new webpack.DefinePlugin(envKeys.stringified),
 
+      new ESLintPlugin({
+        failOnError: false,
+        emitWarning: true,
+        extensions: ["js", "mjs", "jsx", "ts", "tsx"],
+        formatter: require.resolve("react-dev-utils/eslintFormatter"),
+        eslintPath: require.resolve("eslint"),
+        context: paths.appSrc,
+        cache: true,
+        cwd: paths.root,
+        resolvePluginsRelativeTo: __dirname,
+        baseConfig: {
+          extend: [require.resolve("eslint-config-react-app/base")],
+        },
+      }),
+
+      useTypeScript && new ForkTsCheckerWebpackPlugin({
+        async: isDevelopment,
+        typescript: {
+          typescriptPath: resolve.sync("typescript", {
+            baseDir: paths.appNodeModules,
+          }),
+          configOverwrite: {
+            compilerOptions: {
+              sourceMap: isDevelopment,
+              skipLibCheck: true,
+              inlineSourceMap: false,
+              declarationMap: false,
+              incremental: true,
+              tsBuildInfoFile: paths.appTsBuildInfoFile,
+            },
+          },
+          context: paths.root,
+          mode: "write-references",
+          diagnosticOptions: {
+            syntactic: true,
+          },
+        },
+      }),
+
+      isProduction && new MiniCssExtractPlugin({
+        filename: "static/css/[name].[contenthash:8].css",
+        chunkFilename: "static/css/[name].[contenthash:8].chunk.css",
+        ignoreOrder: true,
+      }),
     ].filter(Boolean),
   };
 });
-
-const res = module.exports();
-console.log(res)
