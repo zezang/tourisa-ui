@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const paths = require("./paths");
 
-console.log(process.env);
 // Ensures that including path.js after env.js will read .env variables
 delete require.cache[require.resolve("./paths")];
 
@@ -13,14 +12,14 @@ if (!NODE_ENV) {
 
 const dotenvFiles = [
   paths.dotenv,
-  `${paths.dotenv}.local`
+  `${paths.dotenv}.local`,
   `${paths.dotenv}.${NODE_ENV}`,
   `${paths.dotenv}.${NODE_ENV}.local`,
 ].filter(Boolean);
 
 dotenvFiles.forEach((envFilePath) => {
   if (fs.existsSync(envFilePath)) {
-    require("dotenv-expand")(
+    require("dotenv-expand").expand(
       require("dotenv").config({
         path: envFilePath,
       }),

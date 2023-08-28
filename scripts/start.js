@@ -31,6 +31,7 @@ const createWebpackDevServerConfig = require("../configs/webpackDevServer.config
 const createWebpackConfig = require("../configs/webpack.config");
 const getClientEnvironment = require("../configs/env");
 const paths = require("../configs/paths");
+const react = require(require.resolve("react", { paths: [paths.root] }));
 
 const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 const useYarn = fs.existsSync(paths.yarnLockFile);
@@ -55,7 +56,6 @@ if (process.env.HOST) {
 }
 
 const { checkBrowsers } = require("react-dev-utils/browsersHelper");
-const { clear } = require("console");
 checkBrowsers(paths.root, isInteractive)
   .then(() => choosePort(HOST, DEFAULT_PORT))
   .then((port) => {
@@ -66,6 +66,8 @@ checkBrowsers(paths.root, isInteractive)
     const config = createWebpackConfig(process.env.NODE_ENV);
     const protocol = process.env.HTTPS === "true" ? "https" : "http";
     const appName = require(paths.appPackageJson).name;
+
+    console.log("created webpack config: ", config);
 
     const useTypeScript = fs.existsSync(paths.appTsConfig);
     const tscCompileOnError = process.env.TSC_COMPILE_ON_ERROR === "true";
@@ -86,6 +88,8 @@ checkBrowsers(paths.root, isInteractive)
       tscCompileOnError,
       webpack,
     });
+
+    console.log(`Successfully created compiler: ${compiler}\n`);
 
     // Load proxy configs
     const proxySettings = require(paths.appPackageJson).proxy;
