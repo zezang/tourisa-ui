@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const fs = require("fs");
 const evalSourceMapMiddlware = require("react-dev-utils/evalSourceMapMiddleware");

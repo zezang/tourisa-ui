@@ -3,6 +3,7 @@
 # configs and build
 build
 configs
+scripts
 
 # ignore node_moduels
 node_modules
