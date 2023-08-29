@@ -11,10 +11,12 @@ const ESLintPlugin = require("eslint-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
 const getClientEnvironment = require("./env");
 const { getCSPScriptSrc } = require("./csp/index");
+const modules = require("./modules");
 const paths = require("./paths");
 
 const useTypeScript = fs.existsSync(paths.appTsConfig);
@@ -129,6 +131,25 @@ module.exports = ((env) => {
           }
         }),
         new CssMinimizerPlugin(),
+      ],
+    },
+    resolve: {
+      // Sets fallback for module location
+      modules: ["node_modules", paths.appNodeModules].concat(modules.additionalModulePaths || []),
+      // Defaults supported by node
+      extensions: paths.moduleFileExtensions
+      .map(ext => `.${ext}`)
+      .filter(ext => useTypeScript || !ext.includes("ts")),
+      alias: {
+        "react-native": "react-native-web",
+      },
+      plugins: [
+        new ModuleScopePlugin(
+          [paths.appSrc, paths.appNodeModules],
+          [
+            paths.appPackageJson
+          ],
+        ),
       ],
     },
     module: {

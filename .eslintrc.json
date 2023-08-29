@@ -53,13 +53,20 @@
     "import/no-restricted-paths": [
       "error",
       {
-        "zones": []
+        "zones": [
+          {
+            "target": "./src",
+            "from": "./testautomation"
+          }
+        ]
       }
     ],
     "import/order": [
       "error",
       {
-        
+        "alphabetize": {
+          "order": "asc"
+        }
       }
     ]
   },
@@ -70,5 +77,21 @@
         "extensions": [".js", ".jsx", ".ts", ".tsx", ".d.ts"]
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.{ts,tsx}"],
+      "rules": {
+        "@typescript-eslint/ban-types": [
+          "error",
+          {
+            "extendDefaults": true,
+            "types": {
+              "{}": false
+            }
+          }
+        ]
+      }
+    }
+  ]
 }

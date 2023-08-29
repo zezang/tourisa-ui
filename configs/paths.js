@@ -47,7 +47,7 @@ module.exports = {
   appIndexJs: resolveApp(resolveModule(resolveApp, "src/index")),
   appPackageJson: resolveApp("package.json"),
   appSrc: resolveApp("src"),
-  appTsConfig: resolveApp("tsconfg.json"),
+  appTsConfig: resolveApp("tsconfig.json"),
   appJsConfig: resolveApp("jsconfig.json"),
   appMutations: resolveApp("src/mutations"),
   appNodeModules: resolveApp("node_modules"),
