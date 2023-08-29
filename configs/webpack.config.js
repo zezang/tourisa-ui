@@ -7,6 +7,7 @@ const webpack = require("webpack");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -247,7 +248,7 @@ module.exports = ((env) => {
       // Content Security Policy configs
       new CspHtmlWebpackPlugin(
         {
-          "default-src": "self",
+          "default-src": "'self'",
           "script-src": getCSPScriptSrc(),
         },
         {
@@ -277,7 +278,7 @@ module.exports = ((env) => {
         cwd: paths.root,
         resolvePluginsRelativeTo: __dirname,
         baseConfig: {
-          extend: [require.resolve("eslint-config-react-app/base")],
+          extends: [require.resolve("eslint-config-react-app/base")],
         },
       }),
 

@@ -11,7 +11,7 @@ const ALLOWED_SCRIPT_SOURCES = [
 
 const getCSPScriptSrc = () => {
   const allowedScriptSources = ALLOWED_SCRIPT_SOURCES.join(" ");
-  const allowSelf = "self";
+  const allowSelf = "'self'";
 
   const allowedHostsIfDev = devHosts();
 
