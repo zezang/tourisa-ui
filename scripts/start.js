@@ -120,3 +120,10 @@ checkBrowsers(paths.root, isInteractive)
       openBrowser(urls.lanUrlForConfig);
     });
   });
+
+["SIGINT", "SIGTERM"].forEach((sig) => {
+  process.on(sig, () => {
+    devServer.close();
+    process.exit();
+  });
+});
