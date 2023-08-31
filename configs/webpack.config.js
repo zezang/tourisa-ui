@@ -24,6 +24,7 @@ const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || "10
 
 const cssRegex = /\.css$/;
 const sassRegex = /\.(scss|sass)$/;
+const sassModuleRegex = /\.(scss|sass)$/;
 const nodeModulesRegex = /node_modules/;
 
 module.exports = ((env) => {
@@ -202,7 +203,17 @@ module.exports = ((env) => {
         },
         {
           test: sassRegex,
-          exclude: nodeModulesRegex,
+          exclude: sassModuleRegex,
+          use: getStyleLoaders(
+            {
+              importLoaders: 3,
+              sourceMap: isDevelopment,
+            },
+            "sass-loader",
+          ),
+        },
+        {
+          test: sassModuleRegex,
           use: getStyleLoaders(
             {
               importLoaders: 3,
