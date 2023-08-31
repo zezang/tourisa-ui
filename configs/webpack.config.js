@@ -168,7 +168,11 @@ module.exports = ((env) => {
           loader: require.resolve("babel-loader"),
           options: {
             babelrc: false,
-            presets: [require.resolve("@babel/preset-env"), require.resolve("@babel/preset-react")],
+            presets: [
+              require.resolve("@babel/preset-env"), 
+              require.resolve("@babel/preset-react"), 
+              require.resolve("@babel/preset-typescript")
+            ],
             plugins: [
               require.resolve("@babel/plugin-transform-runtime"),
               [
