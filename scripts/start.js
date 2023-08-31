@@ -63,11 +63,9 @@ checkBrowsers(paths.root, isInteractive)
       return;
     }
 
-    const config = createWebpackConfig(process.env.NODE_ENV);
+    const config = createWebpackConfig("development");
     const protocol = process.env.HTTPS === "true" ? "https" : "http";
     const appName = require(paths.appPackageJson).name;
-
-    console.log("created webpack config: ", config);
 
     const useTypeScript = fs.existsSync(paths.appTsConfig);
     const tscCompileOnError = process.env.TSC_COMPILE_ON_ERROR === "true";
@@ -101,12 +99,12 @@ checkBrowsers(paths.root, isInteractive)
       host: HOST,
       port,
     };
-    const devServer = new WebpackDevServer(compiler, serverConfig);
+    const devServer = new WebpackDevServer(serverConfig, compiler);
 
     devServer.startCallback(() => {
-      if (isInteractive) {
-        clearConsole();
-      }
+      // if (isInteractive) {
+      //   clearConsole();
+      // }
 
       if (env.raw.FAST_REFRESH && semver.lt(react.version, "16.10.0")) {
         console.log(
@@ -117,13 +115,27 @@ checkBrowsers(paths.root, isInteractive)
       }
 
       console.log(chalk.cyan("Starting the development server..."));
+      console.log(chalk.cyan("Urls for openBrowser: ", urls.lanUrlForConfig));
       openBrowser(urls.lanUrlForConfig);
     });
-  });
 
-["SIGINT", "SIGTERM"].forEach((sig) => {
-  process.on(sig, () => {
-    devServer.close();
-    process.exit();
+    ["SIGINT", "SIGTERM"].forEach((sig) => {
+      process.on(sig, () => {
+        devServer.close();
+        process.exit();
+      });
+    });
+
+    if (process.env.CI !== "true") {
+      process.stdin.on("end", () =>{
+        devServer.close();
+        process.exit();
+      })
+    }
+  })
+  .catch(err => {
+    if (err && err.message) {
+      console.log(err.message);
+    }
+    process.exit(1);
   });
-});

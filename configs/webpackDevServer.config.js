@@ -28,7 +28,6 @@ module.exports = function(proxy, allowedHost) {
       index: paths.publicUrlOrPath,
     },
     host,
-    hot: true,
     https: getHttpsConfig(),
     static: {
       directory: paths.appPublic,
@@ -37,6 +36,7 @@ module.exports = function(proxy, allowedHost) {
         ignored: ignoredFiles(paths.appSrc),
       },
     },
+    proxy,
     setupMiddlewares(middlewares, devServer) {
       if (!devServer) {
         throw new Error("webpack-dev-server is not defined");

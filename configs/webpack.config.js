@@ -330,6 +330,7 @@ module.exports = ((env) => {
               skipLibCheck: true,
               inlineSourceMap: false,
               declarationMap: false,
+              noEmit: true,
               incremental: true,
               tsBuildInfoFile: paths.appTsBuildInfoFile,
             },
@@ -338,6 +339,9 @@ module.exports = ((env) => {
           mode: "write-references",
           diagnosticOptions: {
             syntactic: true,
+          },
+          issue: {
+            include: [{ file: "../**/src/**/*.{ts,tsx"}, { file: "**/src/**/*.{ts,tsx}" }],
           },
         },
       }),
