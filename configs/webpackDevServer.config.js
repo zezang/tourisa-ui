@@ -31,7 +31,7 @@ module.exports = function(proxy, allowedHost) {
     https: getHttpsConfig(),
     static: {
       directory: paths.appPublic,
-      publicPath: [paths.publicUrlOrPath],
+      publicPath: paths.publicUrlOrPath,
       watch: {
         ignored: ignoredFiles(paths.appSrc),
       },

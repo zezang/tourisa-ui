@@ -29,6 +29,7 @@ const configFactory = require("../configs/webpack.config");
 const createDevServerConfig = require("../configs/webpackDevServer.config");
 const getClientEnvironment = require("../configs/env");
 const react = require(require.resolve("react", { paths: [paths.root] }));
+// const { logWebpackConfigInfo, logWebpackDevServerInfo} = require("./logger");
 
 const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 const useYarn = fs.existsSync(paths.yarnLockFile);
@@ -39,9 +40,8 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
   process.exit(1);
 }
 
-// const testConfig = configFactory("development");
-// console.log("test config created: ", testConfig);
-// console.log("webpack config rules: ", testConfig.module.rules)
+// logWebpackConfigInfo();
+// logWebpackDevServerInfo();
 
 // Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
