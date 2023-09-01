@@ -18,6 +18,18 @@
     "react-router-dom": "^6.15.0",
     "semver": "^7.5.4"
   },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/plugin-syntax-flow": "^7.22.5",
@@ -74,17 +86,5 @@
     "webpack-bundle-analyzer": "^4.9.0",
     "webpack-dev-server": "^4.15.1",
     "yarn": "^1.22.19"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
