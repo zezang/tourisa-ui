@@ -94,6 +94,8 @@ module.exports = ((env) => {
         },
       );
     };
+
+    return loaders;
   };
 
   return {
