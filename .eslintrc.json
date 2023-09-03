@@ -4,11 +4,11 @@
     "es2021": true
   },
   "extends": [
-    "airbnb",
-    "eslint:recommended",
-    "plugin:prettier/recommended",
     "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "airbnb",
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -34,6 +34,10 @@
     "react/require-default-props": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
+    "react/destructuring-assignment": [0],
+    "react/prefer-stateless-function": [0],
+    "react/jsx-props-no-spreading": "off",
+    "no-unused-vars": "off",
     "react/jsx-filename-extension": [
       2,
       {
@@ -45,6 +49,25 @@
       { 
         "namedComponents": "arrow-function" 
       }
+    ],
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src",
+            "from": "./testautomation"
+          }
+        ]
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "alphabetize": {
+          "order": "asc"
+        }
+      }
     ]
   },
   "settings": {
@@ -54,5 +77,21 @@
         "extensions": [".js", ".jsx", ".ts", ".tsx", ".d.ts"]
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.{ts,tsx}"],
+      "rules": {
+        "@typescript-eslint/ban-types": [
+          "error",
+          {
+            "extendDefaults": true,
+            "types": {
+              "{}": false
+            }
+          }
+        ]
+      }
+    }
+  ]
 }

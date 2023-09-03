@@ -1,4 +1,4 @@
-import { getCSPScriptSrc } from "./getCSPScriptSrc";
+const { getCSPScriptSrc } = require("./getCSPScriptSrc");
 
 module.exports = {
   getCSPScriptSrc,

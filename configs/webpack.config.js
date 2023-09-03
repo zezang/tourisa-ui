@@ -7,13 +7,16 @@ const webpack = require("webpack");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
 const getClientEnvironment = require("./env");
 const { getCSPScriptSrc } = require("./csp/index");
+const modules = require("./modules");
 const paths = require("./paths");
 
 const useTypeScript = fs.existsSync(paths.appTsConfig);
@@ -21,6 +24,7 @@ const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || "10
 
 const cssRegex = /\.css$/;
 const sassRegex = /\.(scss|sass)$/;
+const sassModuleRegex = /\.module.(scss|sass)$/;
 const nodeModulesRegex = /node_modules/;
 
 module.exports = ((env) => {
@@ -71,6 +75,7 @@ module.exports = ((env) => {
               "postcss-overflow-shorthand"
             ],
           },
+          sourceMap: isDevelopment,
         },
       },
     ].filter(Boolean);
@@ -90,6 +95,8 @@ module.exports = ((env) => {
         },
       );
     };
+
+    return loaders;
   };
 
   return {
@@ -130,6 +137,25 @@ module.exports = ((env) => {
         new CssMinimizerPlugin(),
       ],
     },
+    resolve: {
+      // Sets fallback for module location
+      modules: ["node_modules", paths.appNodeModules].concat(modules.additionalModulePaths || []),
+      // Defaults supported by node
+      extensions: paths.moduleFileExtensions
+      .map(ext => `.${ext}`)
+      .filter(ext => useTypeScript || !ext.includes("ts")),
+      alias: {
+        "react-native": "react-native-web",
+      },
+      plugins: [
+        new ModuleScopePlugin(
+          [paths.appSrc, paths.appNodeModules],
+          [
+            paths.appPackageJson
+          ],
+        ),
+      ],
+    },
     module: {
       strictExportPresence: true,
       rules: [
@@ -140,84 +166,111 @@ module.exports = ((env) => {
           }
         },
         {
-          test: /\.(js|mjs|jsx|ts|tsx)$/,
-          include: paths.appSrc,
-          exclude: nodeModulesRegex,
-          loader: require.resolve("babel-loader"),
-          options: {
-            babelrc: false,
-            presets: [require.resolve("@babel/preset-env"), require.resolve("@babel/preset-react")],
-            plugins: [
-              require.resolve("@babel/plugin-transform-runtime"),
-              [
-                "relay", 
-                { 
-                  artifactDirectory: "./src/__generated__", 
+          oneOf: [
+            {
+              test: /\.(bmp|gif|jpe?g|png)$/,
+              type: "asset",
+              parser: {
+                dataUrlCondition: {
+                  maxSize: imageInlineSizeLimit,
+                },
+              },
+            },
+            {
+              test: /\.svg$/,
+              use: [
+                {
+                  loader: require.resolve("@svgr/webpack"),
+                  options: {
+                    prettier: false,
+                    svgo: false,
+                    svgoConfig: {
+                      plugions: [{ removeViewBox: false }],
+                    },
+                    titleProp: true,
+                    ref: true,
+                  },
+                },
+                {
+                  loader: require.resolve("file-loader"),
+                  options: {
+                    name: "static/media/[name].[hash].[ext]",
+                  },
                 },
               ],
-            ].filter(Boolean),
-            // Cache related options
-            cacheDirectory: true,
-            cacheCompression: false,
-            compact: isProduction,
-          },
-        },
-        {
-          test: cssRegex,
-          exclude: nodeModulesRegex,
-          use: getStyleLoaders({
-            importLoaders: 1,
-            sourceMap: isDevelopment,
-            modules: {
-              mode: "icss",
+              issuer: {
+                and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
+              },
             },
-          }),
-          sideEffects: true,
-        },
-        {
-          test: sassRegex,
-          exclude: nodeModulesRegex,
-          use: getStyleLoaders(
             {
-              importLoaders: 3,
-              sourceMap: isDevelopment,
-            },
-            "sass-loader",
-          ),
-        },
-        {
-          test: /\.(bmp|gif|jpe?g|png)$/,
-          type: "asset",
-          parser: {
-            dataUrlCondition: {
-              maxSize: imageInlineSizeLimit,
-            },
-          },
-        },
-        {
-          test: /\.svg$/,
-          use: [
-            {
-              loader: require.resolve("@svgr/webpack"),
+              test: /\.(js|mjs|jsx|ts|tsx)$/,
+              include: paths.appSrc,
+              loader: require.resolve("babel-loader"),
               options: {
-                prettier: false,
-                svgo: false,
-                svgoConfig: {
-                  plugions: [{ removeViewBox: false }],
+                babelrc: false,
+                presets: [
+                  require.resolve("@babel/preset-env"), 
+                  require.resolve("@babel/preset-react"), 
+                  require.resolve("@babel/preset-typescript")
+                ],
+                plugins: [
+                  require.resolve("@babel/plugin-transform-runtime"),
+                  [
+                    "relay", 
+                    { 
+                      artifactDirectory: "./src/__generated__", 
+                    },
+                  ],
+                ].filter(Boolean),
+                // Cache related options
+                cacheDirectory: true,
+                cacheCompression: false,
+                compact: isProduction,
+              },
+            },
+            {
+              test: cssRegex,
+              use: getStyleLoaders({
+                importLoaders: 1,
+                sourceMap: isDevelopment,
+                modules: {
+                  mode: "icss",
                 },
-                titleProp: true,
-                ref: true,
-              },
+              }),
+              sideEffects: true,
             },
             {
-              loader: require.resolve("file-loader"),
-              options: {
-                name: "static/media/[name].[hash].[ext]",
-              },
+              test: sassRegex,
+              exclude: sassModuleRegex,
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isDevelopment,
+                  modules: {
+                    mode: "icss",
+                  },
+                },
+                "sass-loader",
+              ),
+              sideEffects: true,
+            },
+            {
+              test: sassModuleRegex,
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isDevelopment,
+                },
+                "sass-loader",
+              ),
+            },
+            {
+              exclude: [/^$/, /\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+              type: "asset/resource",
             },
           ],
         },
-      ],
+      ].filter(Boolean),
     },
     plugins: [
       new HtmlWebpackPlugin(
@@ -247,7 +300,7 @@ module.exports = ((env) => {
       // Content Security Policy configs
       new CspHtmlWebpackPlugin(
         {
-          "default-src": "self",
+          "default-src": "'self'",
           "script-src": getCSPScriptSrc(),
         },
         {
@@ -277,7 +330,7 @@ module.exports = ((env) => {
         cwd: paths.root,
         resolvePluginsRelativeTo: __dirname,
         baseConfig: {
-          extend: [require.resolve("eslint-config-react-app/base")],
+          extends: [require.resolve("eslint-config-react-app/base")],
         },
       }),
 
@@ -293,6 +346,7 @@ module.exports = ((env) => {
               skipLibCheck: true,
               inlineSourceMap: false,
               declarationMap: false,
+              noEmit: true,
               incremental: true,
               tsBuildInfoFile: paths.appTsBuildInfoFile,
             },
@@ -301,6 +355,9 @@ module.exports = ((env) => {
           mode: "write-references",
           diagnosticOptions: {
             syntactic: true,
+          },
+          issue: {
+            include: [{ file: "../**/src/**/*.{ts,tsx"}, { file: "**/src/**/*.{ts,tsx}" }],
           },
         },
       }),

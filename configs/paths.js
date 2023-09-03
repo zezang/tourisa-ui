@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 const fs = require("fs");
 const path = require("path");
@@ -44,16 +44,17 @@ module.exports = {
   appBuild: resolveApp("build"),
   appPublic: resolveApp("public"),
   appHtml: resolveApp("public/index.html"),
-  appIndexJs: resolveApp("src/index"),
+  appIndexJs: resolveApp(resolveModule(resolveApp, "src/index")),
   appPackageJson: resolveApp("package.json"),
   appSrc: resolveApp("src"),
-  appTsConfig: resolveApp("tsconfg.json"),
+  appTsConfig: resolveApp("tsconfig.json"),
   appJsConfig: resolveApp("jsconfig.json"),
+  appMutations: resolveApp("src/mutations"),
   appNodeModules: resolveApp("node_modules"),
   appNodeModulesCache: resolveApp("node_modules/cache"),
-  appMutations: resolveApp("src/mutations"),
   appProviders: resolveApp("src/providers"),
   appTsBuildInfoFile: resolveApp("node_modules/.cache/tsconfig.tsbuildinfo"),
+  proxySetup: resolveApp("src/setupProxy.js"),
   yarnLockFile: resolveApp("yarn.lock"),
   moduleFileExtensions,
   publicUrlOrPath,

@@ -5,13 +5,16 @@ const GOOGLE_URLS = [
   "https://maps.googleapis.com",
 ];
 
+const UNSAFE_EVAL = ["'unsafe-eval'"];
+
 const ALLOWED_SCRIPT_SOURCES = [
   ...GOOGLE_URLS,
+  ...UNSAFE_EVAL,
 ];
 
 const getCSPScriptSrc = () => {
   const allowedScriptSources = ALLOWED_SCRIPT_SOURCES.join(" ");
-  const allowSelf = "self";
+  const allowSelf = "'self'";
 
   const allowedHostsIfDev = devHosts();
 

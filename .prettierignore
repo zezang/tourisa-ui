@@ -2,3 +2,5 @@ build
 coverage
 dist
 static
+
+__generated__
