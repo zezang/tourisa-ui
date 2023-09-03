@@ -30,12 +30,32 @@ function logWebpackConfigInfo(config) {
     return;
   }
 
-  console.log("webpack config info: ", config);
-  console.log("\n");
-  console.log("webpack config plugins: ", config.plugins);
-  console.log("\n");
-  console.log("webpack config rules: ", config.module.rules);
-  console.log("\n");
+  // console.log("webpack config info: ", config);
+  // console.log("\n");
+  // console.log("webpack config plugins: ", config.plugins);
+  // console.log("\n");
+  
+  if (config.module.rules) {
+    const { rules } = config.module;
+    for (const rule of rules) {
+      if ("oneOf" in rule) {
+        const ruleArray = rule["oneOf"];
+        for (const oneOfRule of ruleArray) {
+          if ("use" in oneOfRule) {
+            console.log(oneOfRule.use);
+            console.log("\n");
+          } else{
+            console.log(oneOfRule);
+            console.log("\n");
+          }
+          
+        }
+      } else {
+        console.log(rule);
+        console.log("\n");
+      }
+    }
+  }
 }
 
 function logWebpackDevServerInfo(serverConfig) {

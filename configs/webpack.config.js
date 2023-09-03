@@ -24,7 +24,7 @@ const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || "10
 
 const cssRegex = /\.css$/;
 const sassRegex = /\.(scss|sass)$/;
-const sassModuleRegex = /\.(scss|sass)$/;
+const sassModuleRegex = /\.module.(scss|sass)$/;
 const nodeModulesRegex = /node_modules/;
 
 module.exports = ((env) => {
@@ -75,6 +75,7 @@ module.exports = ((env) => {
               "postcss-overflow-shorthand"
             ],
           },
+          sourceMap: isDevelopment,
         },
       },
     ].filter(Boolean);
@@ -165,98 +166,111 @@ module.exports = ((env) => {
           }
         },
         {
-          test: /\.(js|mjs|jsx|ts|tsx)$/,
-          include: paths.appSrc,
-          exclude: nodeModulesRegex,
-          loader: require.resolve("babel-loader"),
-          options: {
-            babelrc: false,
-            presets: [
-              require.resolve("@babel/preset-env"), 
-              require.resolve("@babel/preset-react"), 
-              require.resolve("@babel/preset-typescript")
-            ],
-            plugins: [
-              require.resolve("@babel/plugin-transform-runtime"),
-              [
-                "relay", 
-                { 
-                  artifactDirectory: "./src/__generated__", 
+          oneOf: [
+            {
+              test: /\.(bmp|gif|jpe?g|png)$/,
+              type: "asset",
+              parser: {
+                dataUrlCondition: {
+                  maxSize: imageInlineSizeLimit,
+                },
+              },
+            },
+            {
+              test: /\.svg$/,
+              use: [
+                {
+                  loader: require.resolve("@svgr/webpack"),
+                  options: {
+                    prettier: false,
+                    svgo: false,
+                    svgoConfig: {
+                      plugions: [{ removeViewBox: false }],
+                    },
+                    titleProp: true,
+                    ref: true,
+                  },
+                },
+                {
+                  loader: require.resolve("file-loader"),
+                  options: {
+                    name: "static/media/[name].[hash].[ext]",
+                  },
                 },
               ],
-            ].filter(Boolean),
-            // Cache related options
-            cacheDirectory: true,
-            cacheCompression: false,
-            compact: isProduction,
-          },
-        },
-        {
-          test: cssRegex,
-          exclude: nodeModulesRegex,
-          use: getStyleLoaders({
-            importLoaders: 1,
-            sourceMap: isDevelopment,
-            modules: {
-              mode: "icss",
+              issuer: {
+                and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
+              },
             },
-          }),
-          sideEffects: true,
-        },
-        {
-          test: sassRegex,
-          exclude: sassModuleRegex,
-          use: getStyleLoaders(
             {
-              importLoaders: 3,
-              sourceMap: isDevelopment,
-            },
-            "sass-loader",
-          ),
-        },
-        {
-          test: sassModuleRegex,
-          use: getStyleLoaders(
-            {
-              importLoaders: 3,
-              sourceMap: isDevelopment,
-            },
-            "sass-loader",
-          ),
-        },
-        {
-          test: /\.(bmp|gif|jpe?g|png)$/,
-          type: "asset",
-          parser: {
-            dataUrlCondition: {
-              maxSize: imageInlineSizeLimit,
-            },
-          },
-        },
-        {
-          test: /\.svg$/,
-          use: [
-            {
-              loader: require.resolve("@svgr/webpack"),
+              test: /\.(js|mjs|jsx|ts|tsx)$/,
+              include: paths.appSrc,
+              loader: require.resolve("babel-loader"),
               options: {
-                prettier: false,
-                svgo: false,
-                svgoConfig: {
-                  plugions: [{ removeViewBox: false }],
+                babelrc: false,
+                presets: [
+                  require.resolve("@babel/preset-env"), 
+                  require.resolve("@babel/preset-react"), 
+                  require.resolve("@babel/preset-typescript")
+                ],
+                plugins: [
+                  require.resolve("@babel/plugin-transform-runtime"),
+                  [
+                    "relay", 
+                    { 
+                      artifactDirectory: "./src/__generated__", 
+                    },
+                  ],
+                ].filter(Boolean),
+                // Cache related options
+                cacheDirectory: true,
+                cacheCompression: false,
+                compact: isProduction,
+              },
+            },
+            {
+              test: cssRegex,
+              use: getStyleLoaders({
+                importLoaders: 1,
+                sourceMap: isDevelopment,
+                modules: {
+                  mode: "icss",
                 },
-                titleProp: true,
-                ref: true,
-              },
+              }),
+              sideEffects: true,
             },
             {
-              loader: require.resolve("file-loader"),
-              options: {
-                name: "static/media/[name].[hash].[ext]",
-              },
+              test: sassRegex,
+              exclude: sassModuleRegex,
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isDevelopment,
+                  modules: {
+                    mode: "icss",
+                  },
+                },
+                "sass-loader",
+              ),
+              sideEffects: true,
+            },
+            {
+              test: sassModuleRegex,
+              use: getStyleLoaders(
+                {
+                  importLoaders: 3,
+                  sourceMap: isDevelopment,
+                },
+                "sass-loader",
+              ),
+            },
+            {
+              exclude: [/^$/, /\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+              type: "asset/resource",
             },
           ],
         },
-      ],
+      ].filter(Boolean),
     },
     plugins: [
       new HtmlWebpackPlugin(
