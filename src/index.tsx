@@ -1,5 +1,9 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+
+// Initialize some global app properties and css
+import "setup/initLibraries";
+
 import {
   createBrowserRouter,
   createRoutesFromElements,
